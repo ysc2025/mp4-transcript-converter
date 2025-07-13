@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MP4 to Transcript Converter</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>MP4 to Transcript Converter</h1>
+            <p>Upload MP4 meeting recordings and automatically convert them to text transcripts</p>
+        </header>
+
+        <main>
+            <div class="upload-section">
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-icon">📹</div>
+                    <h3>Drag & Drop MP4 files here or click to select</h3>
+                    <p>Supports MP4 format meeting recording files</p>
+                    <input type="file" id="fileInput" accept=".mp4,video/mp4" hidden>
+                    <button class="upload-btn" id="uploadBtn">Choose File</button>
+                </div>
+            </div>
+
+            <div class="file-info" id="fileInfo" style="display: none;">
+                <h3>File Information</h3>
+                <p id="fileName"></p>
+                <p id="fileSize"></p>
+                <div class="progress-container">
+                    <div class="progress-bar" id="progressBar"></div>
+                </div>
+                <p id="progressText">Preparing...</p>
+            </div>
+
+            <div class="controls" id="controls" style="display: none;">
+                <button class="btn primary" id="startTranscription">Start Transcription</button>
+                <button class="btn secondary" id="pauseTranscription" disabled>Pause</button>
+                <button class="btn secondary" id="resetTranscription">Reset</button>
+            </div>
+
+            <div class="transcript-section" id="transcriptSection" style="display: none;">
+                <div class="transcript-header">
+                    <h3>Transcription Result</h3>
+                    <div class="transcript-controls">
+                        <button class="btn small" id="copyTranscript">Copy Text</button>
+                        <button class="btn small" id="downloadTranscript">Download TXT</button>
+                        <button class="btn small" id="clearTranscript">Clear</button>
+                    </div>
+                </div>
+                <div class="transcript-content">
+                    <textarea id="transcriptText" placeholder="Transcribed text will appear here..." readonly></textarea>
+                </div>
+                <div class="transcript-stats">
+                    <span id="wordCount">Word Count: 0</span>
+                    <span id="transcriptionTime">Transcription Time: 00:00</span>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>※ This tool uses browser built-in speech recognition and requires internet connection</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
