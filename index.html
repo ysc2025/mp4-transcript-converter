@@ -40,6 +40,18 @@
                 <button class="btn secondary" id="resetTranscription">Reset</button>
             </div>
 
+            <div class="alternative-section" id="alternativeSection" style="display: none;">
+                <div class="alternative-header">
+                    <h3>Alternative: Live Recording</h3>
+                    <p>If file transcription isn't working, try recording live audio from your microphone</p>
+                </div>
+                <div class="recording-controls">
+                    <button class="btn primary" id="startRecording">🎤 Start Recording</button>
+                    <button class="btn secondary" id="stopRecording" disabled>⏹️ Stop Recording</button>
+                    <div class="recording-status" id="recordingStatus"></div>
+                </div>
+            </div>
+
             <div class="transcript-section" id="transcriptSection" style="display: none;">
                 <div class="transcript-header">
                     <h3>Transcription Result</h3>

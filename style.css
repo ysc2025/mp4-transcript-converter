@@ -178,6 +178,39 @@ main {
     cursor: not-allowed;
 }
 
+.alternative-section {
+    background: #fff8e1;
+    border: 2px solid #ffc107;
+    border-radius: 10px;
+    padding: 20px;
+    margin: 20px 0;
+    text-align: center;
+}
+
+.alternative-header h3 {
+    color: #f57c00;
+    margin-bottom: 10px;
+}
+
+.alternative-header p {
+    color: #666;
+    margin-bottom: 20px;
+}
+
+.recording-controls {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 15px;
+}
+
+.recording-status {
+    color: #f57c00;
+    font-weight: 500;
+    margin-top: 10px;
+}
+
 .transcript-section {
     border-top: 2px solid #f0f0f0;
     padding-top: 30px;

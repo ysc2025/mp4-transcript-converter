@@ -13,6 +13,9 @@ class MP4Transcriber {
         this.minRestartInterval = 1000;
         this.isOnline = navigator.onLine;
         this.hasNetworkError = false; // Flag to track if we have network issues
+        this.isRecording = false;
+        this.mediaRecorder = null;
+        this.recordedChunks = [];
         
         this.initializeElements();
         this.setupEventListeners();
@@ -40,6 +43,10 @@ class MP4Transcriber {
         this.clearBtn = document.getElementById('clearTranscript');
         this.wordCount = document.getElementById('wordCount');
         this.transcriptionTime = document.getElementById('transcriptionTime');
+        this.alternativeSection = document.getElementById('alternativeSection');
+        this.startRecordingBtn = document.getElementById('startRecording');
+        this.stopRecordingBtn = document.getElementById('stopRecording');
+        this.recordingStatus = document.getElementById('recordingStatus');
     }
 
     setupEventListeners() {
@@ -62,6 +69,10 @@ class MP4Transcriber {
         this.copyBtn.addEventListener('click', () => this.copyTranscript());
         this.downloadBtn.addEventListener('click', () => this.downloadTranscript());
         this.clearBtn.addEventListener('click', () => this.clearTranscript());
+
+        // Recording controls
+        this.startRecordingBtn.addEventListener('click', () => this.startRecording());
+        this.stopRecordingBtn.addEventListener('click', () => this.stopRecording());
     }
 
     setupNetworkMonitoring() {
@@ -105,6 +116,7 @@ class MP4Transcriber {
             this.recognition = new SpeechRecognition();
         } else {
             alert('Your browser does not support speech recognition. Please use Chrome browser.');
+            this.showAlternativeOption();
             return;
         }
 
@@ -150,8 +162,9 @@ class MP4Transcriber {
             if (event.error === 'network') {
                 this.hasNetworkError = true;
                 console.log('Network error detected, stopping transcription');
-                this.showError('Network connection issue detected. Please check your internet connection and try again.');
+                this.showError('Network connection issue detected. Try the live recording option below instead.');
                 this.pauseTranscription();
+                this.showAlternativeOption();
                 return;
             }
             
@@ -318,13 +331,15 @@ class MP4Transcriber {
     async startTranscription() {
         if (!this.currentFile || !this.recognition) {
             this.showError('Please select a file first or check browser speech recognition support');
+            this.showAlternativeOption();
             return;
         }
 
         // Check network connectivity before starting
         const isConnected = await this.checkNetworkConnectivity();
         if (!isConnected) {
-            this.showError('No internet connection. Speech recognition requires network access.');
+            this.showError('No internet connection. Speech recognition requires network access. Try the live recording option below.');
+            this.showAlternativeOption();
             return;
         }
 
@@ -412,6 +427,79 @@ class MP4Transcriber {
         this.progressText.textContent = 'Reset complete, ready to start transcription';
         this.updateWordCount();
         this.transcriptionTime.textContent = 'Transcription Time: 00:00';
+    }
+
+    showAlternativeOption() {
+        this.alternativeSection.style.display = 'block';
+    }
+
+    async startRecording() {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            this.mediaRecorder = new MediaRecorder(stream);
+            this.recordedChunks = [];
+
+            this.mediaRecorder.ondataavailable = (event) => {
+                if (event.data.size > 0) {
+                    this.recordedChunks.push(event.data);
+                }
+            };
+
+            this.mediaRecorder.onstop = () => {
+                const audioBlob = new Blob(this.recordedChunks, { type: 'audio/wav' });
+                this.processRecordedAudio(audioBlob);
+            };
+
+            this.mediaRecorder.start();
+            this.isRecording = true;
+            this.startRecordingBtn.disabled = true;
+            this.stopRecordingBtn.disabled = false;
+            this.recordingStatus.textContent = 'Recording... Click stop when finished';
+
+            // Start recognition for live transcription
+            if (this.recognition) {
+                this.recognition.start();
+                this.isTranscribing = true;
+                this.transcriptSection.style.display = 'block';
+                this.startTranscriptionTimer();
+            }
+
+        } catch (error) {
+            console.error('Error starting recording:', error);
+            this.showError('Could not access microphone. Please allow microphone access and try again.');
+        }
+    }
+
+    stopRecording() {
+        if (this.mediaRecorder && this.isRecording) {
+            this.mediaRecorder.stop();
+            this.mediaRecorder.stream.getTracks().forEach(track => track.stop());
+            this.isRecording = false;
+            this.startRecordingBtn.disabled = false;
+            this.stopRecordingBtn.disabled = true;
+            this.recordingStatus.textContent = 'Recording stopped';
+
+            // Stop recognition
+            if (this.recognition && this.isTranscribing) {
+                this.recognition.stop();
+                this.isTranscribing = false;
+            }
+        }
+    }
+
+    processRecordedAudio(audioBlob) {
+        // Create a download link for the recorded audio
+        const url = URL.createObjectURL(audioBlob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `recording_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.wav`;
+        a.textContent = 'Download Recording';
+        a.style.display = 'block';
+        a.style.margin = '10px auto';
+        a.style.color = '#667eea';
+        
+        this.recordingStatus.innerHTML = 'Recording complete! ';
+        this.recordingStatus.appendChild(a);
     }
 
     startTranscriptionTimer() {
