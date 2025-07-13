@@ -3,23 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Audio to Transcript Converter</title>
+    <title>Audio/Video to Transcript Converter</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>Audio to Transcript Converter</h1>
-            <p>Upload audio files and automatically convert them to text transcripts</p>
+            <h1>Audio/Video to Transcript Converter</h1>
+            <p>Upload audio or video files and automatically convert them to text transcripts</p>
         </header>
 
         <main>
             <div class="upload-section">
                 <div class="upload-area" id="uploadArea">
-                    <div class="upload-icon">🎵</div>
-                    <h3>Drag & Drop audio files here or click to select</h3>
-                    <p>Supports MP3, WAV, M4A, and other audio formats</p>
-                    <input type="file" id="fileInput" accept=".mp3,.wav,.m4a,.aac,.ogg,.flac,audio/*" hidden>
+                    <div class="upload-icon">🎬</div>
+                    <h3>Drag & Drop audio/video files here or click to select</h3>
+                    <p>Supports MP4, MP3, WAV, M4A, and other audio/video formats</p>
+                    <input type="file" id="fileInput" accept=".mp4,.mp3,.wav,.m4a,.aac,.ogg,.flac,.mov,.avi,audio/*,video/*" hidden>
                     <button class="upload-btn" id="uploadBtn">Choose File</button>
                 </div>
             </div>

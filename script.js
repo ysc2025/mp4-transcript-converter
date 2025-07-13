@@ -228,21 +228,29 @@ class MP4Transcriber {
     handleFileSelect(file) {
         if (!file) return;
 
-        if (!file.type.includes('audio/')) {
-            this.showError('Please select an audio format file');
+        const isAudio = file.type.includes('audio/');
+        const isVideo = file.type.includes('video/') || file.name.toLowerCase().endsWith('.mp4');
+
+        if (!isAudio && !isVideo) {
+            this.showError('Please select an audio or video format file');
             return;
         }
 
         this.currentFile = file;
         this.showFileInfo(file);
-        this.setupAudioFile(file);
+        
+        if (isVideo) {
+            this.setupVideoFile(file);
+        } else {
+            this.setupAudioFile(file);
+        }
     }
 
     showFileInfo(file) {
         this.fileName.textContent = `File Name: ${file.name}`;
         this.fileSize.textContent = `File Size: ${this.formatFileSize(file.size)}`;
         this.fileInfo.style.display = 'block';
-        this.progressText.textContent = 'Processing audio file...';
+        this.progressText.textContent = 'Processing file...';
         this.updateProgress(10);
     }
 
@@ -278,6 +286,33 @@ class MP4Transcriber {
         } catch (error) {
             console.error('Audio loading error:', error);
             this.showError('Audio loading failed. Please check file format.');
+        }
+    }
+
+    async setupVideoFile(file) {
+        try {
+            this.updateProgress(30);
+            this.progressText.textContent = 'Loading video...';
+
+            const video = document.createElement('video');
+            video.src = URL.createObjectURL(file);
+            
+            await new Promise((resolve, reject) => {
+                video.addEventListener('loadedmetadata', resolve);
+                video.addEventListener('error', reject);
+            });
+
+            this.updateProgress(60);
+            this.progressText.textContent = 'Video loaded, preparing transcription...';
+
+            this.setupVideoPlayback(video);
+            this.updateProgress(100);
+            this.progressText.textContent = 'Ready to start transcription';
+            this.controls.style.display = 'flex';
+
+        } catch (error) {
+            console.error('Video loading error:', error);
+            this.showError('Video loading failed. Please check file format.');
         }
     }
 
@@ -319,9 +354,15 @@ class MP4Transcriber {
     }
 
     setupAudioPlayback(audio) {
-        this.audio = audio;
+        this.mediaElement = audio;
         audio.volume = 0;
         audio.loop = false;
+    }
+
+    setupVideoPlayback(video) {
+        this.mediaElement = video;
+        video.volume = 0;
+        video.loop = false;
     }
 
     updateProgress(percentage) {
@@ -347,8 +388,8 @@ class MP4Transcriber {
         this.startBtn.disabled = true;
         this.pauseBtn.disabled = false;
         
-        this.audio.currentTime = 0;
-        this.audio.play();
+        this.mediaElement.currentTime = 0;
+        this.mediaElement.play();
         
         // Reset error counts before starting
         this.recognitionErrors = 0;
@@ -383,8 +424,8 @@ class MP4Transcriber {
             }
         }
         
-        if (this.audio) {
-            this.audio.pause();
+        if (this.mediaElement) {
+            this.mediaElement.pause();
         }
         
         this.startBtn.disabled = false;
@@ -413,9 +454,9 @@ class MP4Transcriber {
             }
         }
         
-        if (this.audio) {
-            this.audio.pause();
-            this.audio.currentTime = 0;
+        if (this.mediaElement) {
+            this.mediaElement.pause();
+            this.mediaElement.currentTime = 0;
         }
 
         this.recognitionErrors = 0;
